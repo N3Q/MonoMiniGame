@@ -6,27 +6,26 @@ using Minimal.Screen;
 
 namespace Minimal.WorldObj
 {
-    public class World
+    public sealed class World
     {
-        private int[,] _mMap;
+        private int[,] mMap;
         
         public int Width { get; private set; }
         public int Height { get; private set; }
         
-        public int[,] map
+        public int[,] Map
         {
-            get => _mMap;
+            get { return mMap; }
             set
             {
-                _mMap = value;
+                mMap = value;
                 Width = value.GetLength(0);
                 Height = value.GetLength(1);
             } 
         }
 
-        public readonly Dictionary<int, Texture2D> Texture2Ds = new Dictionary<int, Texture2D>();
-        
-        private readonly List<Objects> _mObjects = new List<Objects>();
+        public readonly Dictionary<int, Texture2D> mTexture2Ds = new Dictionary<int, Texture2D>();
+        private readonly List<Objects> mObjects = new List<Objects>();
         
         public void LoadContent(ContentManager content)
         {
@@ -34,32 +33,37 @@ namespace Minimal.WorldObj
             string[] tiles = {"grassCenter", "grass", "grassCliffLeft", "grassCliffRight"};
             for (var i = 0; i < tiles.Length; i++)
             {
-                Texture2Ds.Add(i+1, content.Load<Texture2D>(pre + tiles[i]));
+                mTexture2Ds.Add(i+1, content.Load<Texture2D>(pre + tiles[i]));
             }
         }
 
         public void AddObject(Objects o)
         {
-            _mObjects.Add(o);
+            mObjects.Add(o);
+        }
+
+        public Objects GetObjects(Point p)
+        {
+            return mObjects[0];
         }
 
     }
     
     public abstract class Objects
     {
-        protected readonly World World;
-        protected Vector2 Coordinates;
+        protected readonly World mWorld;
+        protected Vector2 mCoordinates;
 
         public Objects(World w, Vector2 coordinates)
         {
-            World = w;
-            Coordinates = coordinates;
+            mWorld = w;
+            mCoordinates = coordinates;
         }
     }
 
-    public class Camera : Objects, IScreen
+    internal sealed class Camera : Objects, IScreen
     {
-        private Rectangle _mView;
+        private Rectangle mView;
         
         public float Zoom { get; set; }
         
@@ -67,18 +71,18 @@ namespace Minimal.WorldObj
 
         public Camera(World w, Vector2 coord) : base(w, coord)
         {
-            _mView = new Rectangle(Coordinates.ToPoint(), Position.Size.ToVector2().Mult(1/30f).ToPoint());
+            mView = new Rectangle(mCoordinates.ToPoint(), Position.Size.ToVector2().Mult(1/30f).ToPoint());
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            var map = World.map.Cut(_mView);
-            for (var y = 0; y < _mView.Height; y++)
+            var map = mWorld.Map.Cut(mView);
+            for (var y = 0; y < mView.Height; y++)
             {
-                for (var x = 0; x < _mView.Width; x++)
+                for (var x = 0; x < mView.Width; x++)
                 {
                     var text = new Rectangle(x, y, 30, 30);
-                    spriteBatch.Draw(World.Texture2Ds[map[y,x]], text, Color.White);
+                    spriteBatch.Draw(mWorld.mTexture2Ds[map[y,x]], text, Color.White);
                 }
             }
         }

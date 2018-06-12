@@ -4,13 +4,13 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Minimal.Input
 {
-    public class InputProcessor
+    public sealed class InputProcessor
     {
 
         private MouseState mOld;
         
-        private List<IClickable> mClicks = new List<IClickable>();
-        private List<IPressable> mPressables = new List<IPressable>();
+        private readonly List<IClickable> mClicks = new List<IClickable>();
+        private readonly List<IPressable> mPressables = new List<IPressable>();
 
         public void Initialise()
         {
@@ -24,13 +24,13 @@ namespace Minimal.Input
             if (mOld.LeftButton != state.LeftButton && mOld.LeftButton == ButtonState.Pressed)
                 foreach (var c in mClicks)
                 {
-                    if (c.Focus) c.click(state.Position);
+                    if (c.Focus) c.Click(state.Position);
                 }
             
             if (mOld.LeftButton != state.LeftButton && mOld.LeftButton == ButtonState.Released)
                 foreach (var c in mPressables)
                 {
-                    if (c.Focus) c.press(state.Position);
+                    if (c.Focus) c.Press(state.Position);
                 }
             
             mOld = state;
@@ -59,11 +59,11 @@ namespace Minimal.Input
         
     public interface IClickable : IInput
     {
-        void click(Point click);
+        void Click(Point click);
     }
 
     public interface IPressable : IInput
     {
-        void press(Point p);
+        void Press(Point p);
     }
 }

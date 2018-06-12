@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Minimal.WorldObj;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,27 +8,28 @@ using Minimal.Screen;
 
 namespace Minimal.Menue
 {
-    public class MainMenue : IScreen, IClickable, IPressable
+    public sealed class MainMenue : IScreen, IClickable, IPressable
     {
-        private bool _mFocus;
-        private Rectangle _mPos;
+        private bool mFocus;
+        private Rectangle mPos;
         
-        public Rectangle Position {
-            get => _mPos;
+        public Rectangle Position
+        {
+            get { return mPos; }
             set
             {
-                _mPos = value;
+                mPos = value;
                 
                 var curX = value.X;
                 var curY = value.Y;
                 var curW = value.Width;
-                var skip = value.Height / content.Count;
-                var curH = skip - (content.Count * 2);
+                var skip = value.Height / mContent.Count;
+                var curH = skip - (mContent.Count * 2);
                 
-                for (int i = 0; i < content.Count; i++)
+                for (int i = 0; i < mContent.Count; i++)
                 {
                     Rectangle rect = new Rectangle(curX, curY, curW, curH);
-                    Button b = content[i];
+                    Button b = mContent[i];
                     b.Position = rect;
                     curY += skip;
                 }
@@ -38,20 +38,20 @@ namespace Minimal.Menue
         
         public bool Focus
         {
-            get => _mFocus;
+            get { return mFocus; } 
             set
             {
-                _mFocus = value;
-                foreach (var button in content)
+                mFocus = value;
+                foreach (var button in mContent)
                 {
                     button.Focus = value;
                 }
             }
         }
 
-        private SpriteFont font;
+        private SpriteFont mFont;
 
-        private readonly List<Button> content = new List<Button>();
+        private readonly List<Button> mContent = new List<Button>();
         
         public void Initialise()
         {
@@ -60,64 +60,64 @@ namespace Minimal.Menue
                 Text = "New Game"
             };
             nGame.SetListener(new StateChanger(Game1.GameState.Starting));
-            content.Add(nGame);
+            mContent.Add(nGame);
             var mid = new Button
             {
                 Text = "Mid Button"
             };
             mid.SetListener(new Hello("Clicked"));
-            content.Add(mid);
+            mContent.Add(mid);
             var other = new Button
             {
                 Text = "Close"
             };
             other.SetListener(new StateChanger(Game1.GameState.Closing));
-            content.Add(other);
+            mContent.Add(other);
             
-            foreach (var button in content)
+            foreach (var button in mContent)
             {
                 button.TextColor = Color.Azure;
                 button.Background = Color.Bisque;
-                button.Font = font;
+                button.Font = mFont;
             }
         }
 
         public void LoadContent(ContentManager content)
         {
-            font = content.Load<SpriteFont>("Font");
+            mFont = content.Load<SpriteFont>("Font");
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             spriteBatch.FillRectangle(Position, Color.Azure);
-            foreach (var button in content)
+            foreach (var button in mContent)
             {
                 button.Draw(spriteBatch, gameTime);
             }
         }
 
-        public void click(Point click)
+        public void Click(Point click)
         {
             if (!Position.Contains(click)) return;
-            foreach (var button in content)
+            foreach (var button in mContent)
             {
-                button.click(click);
+                button.Click(click);
             }
         }
         
-        public void press(Point click)
+        public void Press(Point click)
         {
             if (!Position.Contains(click)) return;
-            foreach (var button in content)
+            foreach (var button in mContent)
             {
-                button.press(click);
+                button.Press(click);
             }
         }
     }
 
     public class Button : IScreen, IClickable, IPressable
     {
-        private ActionListener _listener;
+        private IActionListener mListener;
         
         public Rectangle Position { get; set; }
         public bool Focus { get; set; }
@@ -127,9 +127,9 @@ namespace Minimal.Menue
         public Color Background { private get; set; }
         public Color TextColor { private get; set; }
 
-        public void SetListener(ActionListener l)
+        public void SetListener(IActionListener l)
         {
-            _listener = l;
+            mListener = l;
         } 
         
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -139,27 +139,27 @@ namespace Minimal.Menue
             spriteBatch.DrawString(Font, Text, Position.Center.ToVector2().Add(text), TextColor);
         }
         
-        public void click(Point click)
+        public void Click(Point click)
         {
             if (Position.Contains(click))
             {
-                _listener?.ActionPerformed();
+                mListener?.ActionPerformed();
                 Background = Color.Aqua;
             }
         }
 
-        public void press(Point p)
+        public void Press(Point p)
         {
             if (Position.Contains(p)) Background = Color.Chartreuse; 
         }
     }
 
-    public interface ActionListener
+    public interface IActionListener
     {
         void ActionPerformed();
     }
 
-    public class Hello : ActionListener
+    public class Hello : IActionListener
     {
         private String s;
         public Hello(String s)
@@ -172,7 +172,7 @@ namespace Minimal.Menue
         }
     }
 
-    public class StateChanger : ActionListener
+    public class StateChanger : IActionListener
     {
         private Game1.GameState s;
 
@@ -183,7 +183,7 @@ namespace Minimal.Menue
         
         public void ActionPerformed()
         {
-            Game1.State = s;
+            Game1.mState = s;
         }
     }
 }

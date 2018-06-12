@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Minimal.WorldObj
+namespace Minimal
 {
     public static class SpriteBatchExtension
     {
