@@ -15,6 +15,8 @@ namespace Minimal
         private readonly MainScreen mMainScreen;
         private readonly InputProcessor mInputProcessor;
         private readonly MainMenue mMainMenue;
+
+        private readonly World mWorld;
         
         public enum  GameState 
         {
@@ -31,6 +33,7 @@ namespace Minimal
             mMainScreen = new MainScreen(mGraphics);
             mInputProcessor = new InputProcessor();
             mMainMenue = new MainMenue();
+            mWorld = new World();
         }
      
         protected override void Initialize()
@@ -52,6 +55,17 @@ namespace Minimal
             
             mInputProcessor.AddClick(mMainMenue);
             mInputProcessor.AddPress(mMainMenue);
+
+            mWorld.Map = new[,]
+            {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 2, 3, 0, 0},
+                {0, 0, 0, 0, 0, 1, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 3},
+                {0, 0, 0, 0, 0, 0, 2, 2},
+                {0, 0, 0, 0, 0, 1, 2, 2},
+            };
         }
 
         protected override void LoadContent()
@@ -59,6 +73,7 @@ namespace Minimal
             // Create a new SpriteBatch, which can be used to draw textures.
             mSpriteBatch = new SpriteBatch(GraphicsDevice);
             mMainMenue.LoadContent(Content);
+            mWorld.LoadContent(Content);
         }
 
      
@@ -75,22 +90,21 @@ namespace Minimal
                 Exit();
             if (mState== GameState.Starting)
             {
-                World w = new World();
-                w.LoadContent(Content);
-                w.Map = new [,]
-                {
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0},
-                    {2, 1, 1, 3}
-                };
-                
-                Camera c = new Camera(w, new Vector2(2, 2));
-                c.Position = new Rectangle(0, 0, 1024, 768);
+                Camera c = new Camera(mWorld, new Vector2(1, 2));
+                c.Position = new Rectangle(0, 0, 512, 768);
+                c.Initialise();
                 mMainScreen.AddScreen(c);
-                w.AddObject(c);
-                
+                mWorld.AddObject(c);
+
+                Camera c2 = new Camera(mWorld, Vector2.Zero);
+                c2.Position = new Rectangle(512, 0, 512, 768);
+                c2.Initialise();
+                mMainScreen.AddScreen(c2);
+                mWorld.AddObject(c2);
+
+                mMainMenue.Focus = false;
+                mMainScreen.Remove(mMainMenue);
+
                 mState = GameState.Run;
             }
             mInputProcessor.Update(gameTime);

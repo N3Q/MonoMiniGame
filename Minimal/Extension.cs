@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Minimal
@@ -30,17 +31,18 @@ namespace Minimal
     {
         public static int[,] Cut(this int[,] h, Rectangle r)
         {
-            var n = new int[r.Width, r.Height];
+            
+            var n = new int[r.Height, r.Width];
             var i = 0;
             var j = 0;
-            for (var x = r.X; x < r.Width; x++)
+            for (var y = r.Y; y < r.Y + r.Height && y < h.GetLength(0); y++)
             {
-                for (var y = r.Y; y < r.Height; y++)
+                for (var x = r.X; x < r.X + r.Width && x < h.GetLength(0); x++)
                 {
-                    n[i, j] = h[x, y];
+                    n[j, i] = h[y, x];
                     i++;
                 }
-                j++;
+                i = 0; j++;
             }
             return n;
         }

@@ -69,19 +69,31 @@ namespace Minimal.WorldObj
         
         public Rectangle Position { get; set; }
 
+        public int TileSize { get; set; } = 50;
+
         public Camera(World w, Vector2 coord) : base(w, coord)
         {
-            mView = new Rectangle(mCoordinates.ToPoint(), Position.Size.ToVector2().Mult(1/30f).ToPoint());
+            
+        }
+
+        public void Initialise()
+        {
+            mView = new Rectangle(mCoordinates.ToPoint(), Position.Size.ToVector2().Mult(1f / TileSize).ToPoint());
+            if (mView.Width > mWorld.Width) mView.Width = (int) (mWorld.Width - mCoordinates.X);
+            if (mView.Height > mWorld.Height) mView.Height = (int) (mWorld.Height - mCoordinates.Y);
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+           // spriteBatch.FillRectangle(Position, Color.Coral);
             var map = mWorld.Map.Cut(mView);
-            for (var y = 0; y < mView.Height; y++)
+            for (var y = 0; y < map.GetLength(0); y++)
             {
-                for (var x = 0; x < mView.Width; x++)
+                for (var x = 0; x < map.GetLength(1); x++)
                 {
-                    var text = new Rectangle(x, y, 30, 30);
+                    if (map[y,x] == 0) continue;
+                    var text = new Rectangle(x * TileSize, y * TileSize, TileSize, TileSize);
+                    text.Location = text.Location.ToVector2().Add(Position.Location.ToVector2()).ToPoint();
                     spriteBatch.Draw(mWorld.mTexture2Ds[map[y,x]], text, Color.White);
                 }
             }
