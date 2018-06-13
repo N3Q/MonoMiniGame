@@ -128,8 +128,16 @@ namespace Minimal.Menue
             {
                 Text = "Mid Button"
             };
-            mid.SetListener(new Hello(this));
+            mid.SetListener(new Hello(this, new Rectangle(30, 30, 500, 500)));
             mContent.Add(mid);
+
+            var jump = new Button
+            {
+                Text = "Jump"
+            };
+            jump.SetListener(new Hello(this, new Rectangle(50, 30, 500, 500)));
+            mContent.Add(jump);
+
             var other = new Button
             {
                 Text = "Close"
@@ -193,14 +201,17 @@ namespace Minimal.Menue
     public class Hello : IActionListener
     {
         private AbstractMenue s;
-        public Hello(AbstractMenue s)
+        private Rectangle target;
+
+        public Hello(AbstractMenue s, Rectangle target)
         {
             this.s = s;
+            this.target = target;
         }
 
         public void ActionPerformed()
         {
-            s.Position = new Rectangle(30, 40, 500, 500);
+            s.Position = target;
         }
     }
 
