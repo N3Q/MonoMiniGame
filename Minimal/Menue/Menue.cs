@@ -8,7 +8,7 @@ using Minimal.Screen;
 
 namespace Minimal.Menue
 {
-    public sealed class MainMenue : IScreen, IClickable, IPressable
+    public abstract class AbstractMenue : IScreen, IClickable, IPressable
     {
         private bool mFocus;
         private Rectangle mPos;
@@ -49,38 +49,11 @@ namespace Minimal.Menue
             }
         }
 
-        private SpriteFont mFont;
+        protected SpriteFont mFont;
 
-        private readonly List<Button> mContent = new List<Button>();
-        
-        public void Initialise()
-        {
-            var nGame = new Button
-            {
-                Text = "New Game"
-            };
-            nGame.SetListener(new StateChanger(Game1.GameState.Starting));
-            mContent.Add(nGame);
-            var mid = new Button
-            {
-                Text = "Mid Button"
-            };
-            mid.SetListener(new Hello("Clicked"));
-            mContent.Add(mid);
-            var other = new Button
-            {
-                Text = "Close"
-            };
-            other.SetListener(new StateChanger(Game1.GameState.Closing));
-            mContent.Add(other);
-            
-            foreach (var button in mContent)
-            {
-                button.TextColor = Color.Azure;
-                button.Background = Color.Bisque;
-                button.Font = mFont;
-            }
-        }
+        protected readonly List<Button> mContent = new List<Button>();
+
+        public abstract void Initialise();
 
         public void LoadContent(ContentManager content)
         {
@@ -115,7 +88,65 @@ namespace Minimal.Menue
         }
     }
 
-    public class Button : IScreen, IClickable, IPressable
+    public class MenueLoader
+    {
+        private MainScreen mScreen;
+        private InputProcessor mInput;
+
+        public MenueLoader(MainScreen mainScreen, InputProcessor input)
+        {
+            mScreen = mainScreen;
+            mInput = input;
+        }
+
+        public void LoadMenue(AbstractMenue m)
+        {
+            mScreen.AddScreen(m);
+            m.Focus = true;
+            mInput.AddClick(m);
+            mInput.AddPress(m);
+        }
+
+        public void RemoveMenue(AbstractMenue m)
+        {
+            mScreen.Remove(m);
+            m.Focus = false;
+        }
+    }
+
+    public class MainMenue : AbstractMenue
+    {
+        public override void Initialise()
+        {
+            var nGame = new Button
+            {
+                Text = "New Game"
+            };
+            nGame.SetListener(new StateChanger(Game1.GameState.Starting));
+            mContent.Add(nGame);
+            var mid = new Button
+            {
+                Text = "Mid Button"
+            };
+            mid.SetListener(new Hello(this));
+            mContent.Add(mid);
+            var other = new Button
+            {
+                Text = "Close"
+            };
+            other.SetListener(new StateChanger(Game1.GameState.Closing));
+            mContent.Add(other);
+
+            foreach (var button in mContent)
+            {
+                button.TextColor = Color.Azure;
+                button.Background = Color.Bisque;
+                button.Font = mFont;
+            }
+        }
+    }
+
+    public sealed class Button : IScreen, IClickable, IPressable
     {
         private IActionListener mListener;
         
@@ -161,14 +192,15 @@ namespace Minimal.Menue
 
     public class Hello : IActionListener
     {
-        private String s;
-        public Hello(String s)
+        private AbstractMenue s;
+        public Hello(AbstractMenue s)
         {
             this.s = s;
         }
+
         public void ActionPerformed()
         {
-            Console.WriteLine(s);
+            s.Position = new Rectangle(30, 40, 500, 500);
         }
     }
 

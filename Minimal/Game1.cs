@@ -15,6 +15,7 @@ namespace Minimal
         private readonly MainScreen mMainScreen;
         private readonly InputProcessor mInputProcessor;
         private readonly MainMenue mMainMenue;
+        private readonly MenueLoader mMenueLoader;
 
         private readonly World mWorld;
         
@@ -32,6 +33,8 @@ namespace Minimal
             
             mMainScreen = new MainScreen(mGraphics);
             mInputProcessor = new InputProcessor();
+            mMenueLoader = new MenueLoader(mMainScreen, mInputProcessor);
+
             mMainMenue = new MainMenue();
             mWorld = new World();
         }
@@ -39,22 +42,14 @@ namespace Minimal
         protected override void Initialize()
         {        
             base.Initialize();
-            mMainScreen.Position = new Rectangle(0, 0, 1024, 768);
-            mGraphics.PreferredBackBufferWidth = 1024;
-            mGraphics.PreferredBackBufferHeight = 768;
             IsMouseVisible = true;
-            mGraphics.ApplyChanges();
+            mMainScreen.Position = new Rectangle(0, 0, 1024, 768);
             
             mInputProcessor.Initialise();
             
             mMainMenue.Initialise();
             mMainMenue.Position = new Rectangle(120, 20, 256, 64);
-            mMainMenue.Focus = true;
-            
-            mMainScreen.AddScreen(mMainMenue);
-            
-            mInputProcessor.AddClick(mMainMenue);
-            mInputProcessor.AddPress(mMainMenue);
+            mMenueLoader.LoadMenue(mMainMenue);
 
             mWorld.Map = new[,]
             {

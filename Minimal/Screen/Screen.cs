@@ -20,6 +20,7 @@ namespace Minimal.Screen
         public MainScreen(GraphicsDeviceManager graphics)
         {
             mGraphics = graphics;
+            mPosition = new Rectangle(0, 0, 1, 1);
         }
 
         public bool Fullscreen {
@@ -35,9 +36,21 @@ namespace Minimal.Screen
             get { return mPosition; }
             set
             {
+                // Adjusting Screen Resolution
                 mGraphics.PreferredBackBufferWidth = value.Width;
                 mGraphics.PreferredBackBufferHeight = value.Height;
                 mGraphics.ApplyChanges();
+
+                var chgX = value.Width / mPosition.Width;
+                var chgY = value.Height / mPosition.Height;
+
+                // Adjusting subscreens.
+                foreach (var scr in mScreens)
+                {
+                    var p = scr.Position;
+                    scr.Position = new Rectangle(p.X * chgX, p.Y * chgY, p.Width * chgX, p.Height *chgY);
+                }
+
                 mPosition = value;
             }
         }
