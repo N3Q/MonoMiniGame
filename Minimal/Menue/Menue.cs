@@ -53,6 +53,13 @@ namespace Minimal.Menue
 
         protected readonly List<Button> mContent = new List<Button>();
 
+        protected MenueLoader mLoader;
+
+        protected AbstractMenue(MenueLoader loader)
+        {
+            mLoader = loader;
+        }
+
         public abstract void Initialise();
 
         public void LoadContent(ContentManager content)
@@ -101,6 +108,7 @@ namespace Minimal.Menue
 
         public void LoadMenue(AbstractMenue m)
         {
+            m.Initialise();
             mScreen.AddScreen(m);
             m.Focus = true;
             mInput.AddClick(m);
@@ -116,6 +124,8 @@ namespace Minimal.Menue
 
     public class MainMenue : AbstractMenue
     {
+        public MainMenue(MenueLoader loader) : base(loader) { }
+
         public override void Initialise()
         {
             var nGame = new Button
@@ -151,6 +161,16 @@ namespace Minimal.Menue
                 button.Background = Color.Bisque;
                 button.Font = mFont;
             }
+        }
+    }
+
+    public sealed class OptionsMenue : AbstractMenue
+    {
+        public OptionsMenue(MenueLoader loader) : base (loader) { }
+
+        public override void Initialise()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -215,7 +235,7 @@ namespace Minimal.Menue
         }
     }
 
-    public class StateChanger : IActionListener
+    public class StateChanger : IActionListener, IKey
     {
         private Game1.GameState s;
 
@@ -227,6 +247,16 @@ namespace Minimal.Menue
         public void ActionPerformed()
         {
             Game1.mState = s;
+        }
+
+        public bool Focus { get; set; }
+
+        public void KeyPressed(AbstractKeys[] keys)
+        {
+            foreach (var k in keys)
+            {
+                Console.WriteLine("Pressed: " + k);
+            }
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Minimal
             mInputProcessor = new InputProcessor();
             mMenueLoader = new MenueLoader(mMainScreen, mInputProcessor);
 
-            mMainMenue = new MainMenue();
+            mMainMenue = new MainMenue(mMenueLoader);
             mWorld = new World();
         }
      
@@ -44,9 +44,11 @@ namespace Minimal
             base.Initialize();
             IsMouseVisible = true;
             mMainScreen.Position = new Rectangle(0, 0, 1024, 768);
-            
+            Settings.LoadSettings();
+
             mInputProcessor.Initialise();
-            
+            mInputProcessor.AddKey(new StateChanger(GameState.Starting));
+
             mMainMenue.Initialise();
             mMainMenue.Position = new Rectangle(120, 20, 256, 64);
             mMenueLoader.LoadMenue(mMainMenue);
